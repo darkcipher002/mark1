@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="theme-color" content="#E11D48"/>
+<title>Rent & payments — PropFlow KE</title>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/tailwind.css"/>
+<link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body data-page="payments" data-title="Rent & payments">
+<template id="header-actions"><button id="pdf-pay" class="btn hidden sm:inline-flex">Download PDF</button><button class="btn hidden lg:inline-flex" onclick="Export.payments()">Export CSV</button><button class="btn btn-soft hidden sm:inline-flex" onclick="AI.openMpesaModal()">Quick Confirm M-Pesa</button><button class="btn btn-brand" onclick="openCollect()">+ Collect rent</button></template>
+<div id="page">
+
+<div class="mb-6"><h2 class="text-2xl font-bold">Rent &amp; payments</h2><p class="text-gray-500 text-sm mt-0.5" id="sum-month">&nbsp;</p></div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+  <div class="card p-5 sm:col-span-1"><p class="text-sm text-gray-500">Collected this month</p><p class="text-2xl font-bold mt-1 num txt-paid" id="sum-collected"><span class="skel inline-block w-28 h-7"></span></p><div class="bar mt-3"><i id="sum-rate" style="width:0"></i></div><p class="text-xs text-gray-500 mt-1.5" id="sum-rate-txt"></p></div>
+  <div class="card p-5"><p class="text-sm text-gray-500">Expected monthly rent</p><p class="text-2xl font-bold mt-1 num" id="sum-expected"><span class="skel inline-block w-28 h-7"></span></p><p class="text-xs text-gray-500 mt-3">From all active tenancies</p></div>
+  <div class="card p-5"><p class="text-sm text-gray-500">Overdue (arrears)</p><p class="text-2xl font-bold mt-1 num" id="sum-arrears"><span class="skel inline-block w-28 h-7"></span></p><a href="/tenants" class="text-xs text-brand-600 font-medium mt-3 inline-block">See who is late →</a></div>
+</div>
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-2">
+  <div class="flex flex-wrap items-center gap-2"><div id="views" class="tabs"><span class="tab on">Last 30 days</span></div><div id="tabs" class="tabs"><span class="tab on">All</span></div></div>
+  <input id="search" type="search" class="auth-input md:!w-72" placeholder="Search tenant, code, house…" aria-label="Search payments"/>
+</div>
+<p id="view-note" class="text-xs text-gray-500 mb-3"></p>
+<div id="payments-list" class="card overflow-hidden"><div class="p-4 space-y-3"><div class="skel h-12"></div><div class="skel h-12"></div><div class="skel h-12"></div></div></div>
+
+<div id="collect-modal" class="modal" aria-hidden="true">
+  <form id="collect-form" class="sheet max-w-md" novalidate>
+    <div class="flex justify-between items-center px-6 py-4 border-b border-[var(--line)]"><h2 class="text-lg font-semibold">Collect rent</h2><button type="button" onclick="closeCollect()" class="text-gray-400 text-2xl leading-none" aria-label="Close">&times;</button></div>
+    <div class="p-6 space-y-4">
+      <div><label class="lbl" for="c-lease">Tenant</label><select id="c-lease" class="auth-input bg-white"></select></div>
+      <div id="c-info" class="rounded-xl bg-gray-50 border border-[var(--line)] p-4 text-sm space-y-1.5 empty:hidden"></div>
+      <div><label class="lbl" for="c-amount">Amount (KSh)</label><input id="c-amount" type="number" min="1" step="0.01" class="auth-input"/></div>
+      <div><span class="lbl">Method</span><div class="grid grid-cols-2 gap-2">
+        <label class="flex items-center gap-2 p-3 border rounded-xl cursor-pointer has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50"><input type="radio" name="method" value="paystack" checked/><span class="text-sm font-medium">Paystack</span></label>
+        <label class="flex items-center gap-2 p-3 border rounded-xl cursor-pointer has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50"><input type="radio" name="method" value="manual"/><span class="text-sm font-medium">Cash / M-Pesa</span></label></div></div>
+      <div id="c-manual" class="hidden space-y-3">
+        <div class="grid grid-cols-2 gap-3"><div><label class="lbl" for="c-ref">M-Pesa code</label><input id="c-ref" class="auth-input uppercase" placeholder="optional"/></div><div><label class="lbl" for="c-date">Date paid</label><input id="c-date" type="date" class="auth-input"/></div></div>
+        <div><label class="lbl" for="c-note">Note</label><input id="c-note" class="auth-input" placeholder="optional"/></div>
+        <p class="hint">Have the SMS? Use <b>Quick Confirm M-Pesa</b> and we'll fill this in for you.</p>
+      </div>
+    </div>
+    <div class="flex gap-3 px-6 pb-6"><button type="button" onclick="closeCollect()" class="btn flex-1">Cancel</button><button type="submit" id="c-go" class="btn btn-brand flex-1">Collect</button></div>
+  </form>
+</div>
+
+</div>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="/js/firebase-config.js"></script>
+<script src="/js/billing.js"></script>
+<script src="/js/store.js"></script>
+<script src="/js/payments.js"></script>
+<script src="/js/ai-automation.js"></script>
+<script src="/js/tenancy.js"></script>
+<script src="/js/pdf-ledger.js"></script>
+<script src="/js/export.js"></script>
+<script src="/js/receipts.js"></script>
+<script src="/js/shell.js"></script>
+<script src="/js/payments-page.js"></script>
+</body>
+</html>

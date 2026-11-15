@@ -1,0 +1,2 @@
+{"name":"PropFlow Home","short_name":"My Home","description":"Your rent, payments and home details","id":"/tenant/","start_url":"/tenant/","scope":"/tenant/","display":"standalone","orientation":"portrait","background_color":"#faf9f8","theme_color":"#e11d48",
+"icons":[{"src":"/icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},{"src":"/icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any"}]}

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="theme-color" content="#E11D48"/>
+<title>Reset password — PropFlow KE</title>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/tailwind.css"/>
+<link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 bg-[var(--bg)]">
+<div id="toast-container" class="fixed top-4 right-4 z-[100] space-y-2 pointer-events-none"></div>
+<main class="w-full max-w-md">
+  <a href="/" class="flex items-center gap-3 justify-center mb-8"><div class="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center font-bold">P</div><span class="font-bold text-lg">PropFlow KE</span></a>
+  <div class="card p-7 sm:p-8">
+    <div id="step-form">
+      <h1 class="text-2xl font-bold">Forgot your password?</h1>
+      <p class="text-gray-500 text-sm mt-1.5">Enter the email you registered with and we'll send you a link to set a new password.</p>
+      <form id="reset-form" class="mt-6 space-y-4" novalidate>
+        <div><label class="lbl" for="rs-email">Email address</label><input id="rs-email" type="email" class="auth-input" placeholder="you@example.com" autocomplete="email" autofocus/></div>
+        <p id="rs-err" class="text-sm txt-late hidden"></p>
+        <button id="rs-btn" class="btn-primary w-full"><span class="btn-text">Send reset link</span></button>
+      </form>
+    </div>
+    <div id="step-done" class="hidden text-center">
+      <div class="w-14 h-14 rounded-2xl bg-[var(--paid-bg)] text-[var(--paid)] flex items-center justify-center mx-auto mb-4"><svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div>
+      <h1 class="text-2xl font-bold">Check your email</h1>
+      <p class="text-gray-500 text-sm mt-2">If an account exists for <b id="done-email" class="text-gray-800"></b>, a reset link is on its way. It can take a minute — check spam too.</p>
+      <button id="resend" class="btn w-full mt-6" disabled>Resend link</button>
+    </div>
+    <p class="text-center text-sm text-gray-500 mt-6"><a href="/" class="text-brand-600 font-semibold hover:underline">← Back to sign in</a></p>
+  </div>
+</main>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="/js/firebase-config.js"></script>
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)}, cool=0, timer=null;
+  var qs=new URLSearchParams(location.search).get("email"); if(qs) $("rs-email").value=qs;
+  function err(m){$("rs-err").textContent=m;$("rs-err").classList.toggle("hidden",!m)}
+  function tick(){var b=$("resend"); if(cool>0){b.disabled=true;b.textContent="Resend in "+cool+"s";cool--;timer=setTimeout(tick,1000)}else{b.disabled=false;b.textContent="Resend link"}}
+  async function send(){
+    var email=$("rs-email").value.trim(); err("");
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return err("Enter a valid email address.");
+    var btn=$("rs-btn"); btn.disabled=true; btn.querySelector(".btn-text").textContent="Sending…";
+    try{
+      await auth.sendPasswordResetEmail(email,{url:location.origin+"/"});
+    }catch(e){
+      if(e.code==="auth/invalid-email"){ btn.disabled=false; btn.querySelector(".btn-text").textContent="Send reset link"; return err("That email address doesn't look right."); }
+      if(e.code==="auth/too-many-requests"){ btn.disabled=false; btn.querySelector(".btn-text").textContent="Send reset link"; return err("Too many requests. Please wait a few minutes and try again."); }
+      if(e.code==="auth/network-request-failed"){ btn.disabled=false; btn.querySelector(".btn-text").textContent="Send reset link"; return err("Network error. Check your connection."); }
+      /* user-not-found etc: show the same success screen so we never reveal which emails are registered */
+    }
+    $("done-email").textContent=email; $("step-form").classList.add("hidden"); $("step-done").classList.remove("hidden");
+    btn.disabled=false; btn.querySelector(".btn-text").textContent="Send reset link"; cool=30; clearTimeout(timer); tick();
+  }
+  $("reset-form").addEventListener("submit",function(e){e.preventDefault();send()});
+  $("resend").addEventListener("click",send);
+})();
+</script>
+</body>
+</html>

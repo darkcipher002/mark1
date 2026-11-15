@@ -1,0 +1,36 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#E11D48"/><meta name="robots" content="noindex"/>
+<title>Pay rent — PropFlow KE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/tailwind.css"/><link rel="stylesheet" href="/css/app.css"/></head>
+<body class="min-h-screen flex items-center justify-center p-4">
+<main class="w-full max-w-md">
+  <div class="flex items-center gap-3 justify-center mb-6"><div class="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center font-bold">P</div><span id="biz" class="font-bold text-lg">PropFlow KE</span></div>
+  <div class="card p-7 text-center" id="box"><div class="skel h-6 w-2/3 mx-auto"></div><div class="skel h-12 w-1/2 mx-auto mt-4"></div><div class="skel h-12 w-full mt-6"></div></div>
+  <p class="text-xs text-gray-400 text-center mt-5">Secure payment by Paystack · M-Pesa and card accepted</p>
+</main>
+<script>
+(function(){
+  var q=new URLSearchParams(location.search), l=q.get("l"), t=q.get("t"), ref=q.get("reference")||q.get("trxref"), box=document.getElementById("box");
+  var fmt=function(n){n=Number(n)||0;return "KSh "+n.toLocaleString("en-KE",{maximumFractionDigits:2})};
+  var esc=function(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})};
+  function post(p,b){return fetch("/api/public/"+p,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(Object.assign({l:l,t:t},b||{}))}).then(function(r){return r.text().then(function(x){var j=null;try{j=JSON.parse(x)}catch(e){}if(!j)throw new Error("We could not reach the payment service. Please try again in a moment.");if(!r.ok)throw new Error(j.error||"Something went wrong");return j})})}
+  function msg(icon,title,text,extra){box.innerHTML='<div class="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center '+(icon==="ok"?"bg-[var(--paid-bg)] text-[var(--paid)]":"bg-[var(--late-bg)] text-[var(--late)]")+'"><svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="'+(icon==="ok"?"M5 13l4 4L19 7":"M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z")+'"/></svg></div><h1 class="text-xl font-bold">'+title+'</h1><p class="text-gray-500 text-sm mt-2">'+text+'</p>'+(extra||"")}
+  if(!l||!t) return msg("err","Link not valid","Please ask your landlord to send you a fresh payment link.");
+  function load(){
+    post("pay-info").then(function(d){
+      document.getElementById("biz").textContent=d.business; document.title="Pay rent — "+d.business;
+      if(!(d.amount>0)) return msg("ok","You're all paid up, "+esc(d.first),"Nothing is due right now. Your next rent is due on "+esc(d.nextDue)+".",'<p class="mt-5 text-sm"><a class="font-semibold text-brand-600" href="/tenant/">Sign in to My Home</a></p>');
+      var late=d.status==="OVERDUE";
+      box.innerHTML='<p class="text-sm text-gray-500">Hi '+esc(d.first)+', rent for</p><p class="font-semibold">'+esc(d.house)+' · '+esc(d.room)+'</p>'+
+        '<p class="text-4xl font-extrabold mt-5 num">'+fmt(d.amount)+'</p><p class="text-sm mt-1 font-medium '+(late?"txt-late":"txt-due")+'">'+esc(d.label)+'</p>'+
+        '<button id="go" class="btn-primary w-full mt-7">Pay '+fmt(d.amount)+'</button><p id="err" class="text-sm txt-late mt-3 hidden"></p>';
+      document.getElementById("go").onclick=function(){var b=this;b.disabled=true;b.textContent="Opening secure checkout…";
+        post("pay-init").then(function(r){location.href=r.url}).catch(function(e){b.disabled=false;b.textContent="Pay "+fmt(d.amount);var er=document.getElementById("err");er.textContent=e.message;er.classList.remove("hidden")})};
+    }).catch(function(e){msg("err","Link not valid",esc(e.message))});
+  }
+  if(ref){ post("pay-verify",{reference:ref}).then(function(r){history.replaceState(null,"","/pay/?l="+l+"&t="+t);
+      msg("ok","Payment received — thank you!","We've recorded "+fmt(r.amount)+" (ref "+esc(r.reference)+"). Your landlord has been updated automatically.")}).catch(function(){msg("err","We're confirming your payment","If you were charged, your landlord will see it shortly. You can safely close this page.")}); }
+  else load();
+})();
+</script></body></html>

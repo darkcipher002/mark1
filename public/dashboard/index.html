@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="theme-color" content="#E11D48"/>
+<title>Today — PropFlow KE</title>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/tailwind.css"/>
+<link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body data-page="today" data-title="Today">
+<template id="header-actions"><button class="btn btn-soft hidden sm:inline-flex" onclick="AI.openMpesaModal()">Quick Confirm M-Pesa</button><button class="btn btn-brand" onclick="Tenancy.openAssign()">+ Add tenant</button></template>
+<div id="page">
+
+<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
+  <div><p class="text-sm text-gray-500" id="today-date">&nbsp;</p><h2 class="text-2xl sm:text-3xl font-bold"><span id="greeting-text">Welcome</span>, <span data-first-name>there</span></h2></div>
+</div>
+<div id="setup-card" class="hidden rounded-2xl bg-gradient-to-r from-brand-50 to-rose-50 border border-brand-100 p-5 mb-6 flex flex-col sm:flex-row sm:items-center gap-4">
+  <div class="flex-1"><h3 class="font-semibold">Set up your first property</h3><p class="text-sm text-gray-600 mt-0.5">Add your houses (3-bedroom or 2-bedroom) and PropFlow creates every room with its rent.</p></div>
+  <a href="/properties?new=1" class="btn btn-brand shrink-0">Add a property →</a>
+</div>
+<section aria-label="Portfolio intelligence" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+  <div class="card p-5"><p class="text-sm text-gray-500">Collection rate</p><p class="text-2xl font-bold mt-1 num" id="k-rate"><span class="skel inline-block w-24 h-7"></span></p><div class="bar mt-3"><i id="k-rate-bar" style="width:0"></i></div><p class="text-xs text-gray-500 mt-1.5" id="k-rate-sub">&nbsp;</p></div>
+  <div class="card p-5"><p class="text-sm text-gray-500">Collected this month</p><p class="text-2xl font-bold mt-1 num txt-paid" id="k-collected"><span class="skel inline-block w-24 h-7"></span></p><p class="text-xs text-gray-500 mt-3 num" id="k-projected">&nbsp;</p></div>
+  <div class="card p-5"><p class="text-sm text-gray-500">Overdue</p><p class="text-2xl font-bold mt-1 num" id="k-arrears"><span class="skel inline-block w-24 h-7"></span></p><p class="text-xs text-gray-500 mt-3" id="k-arrears-sub">&nbsp;</p></div>
+  <div class="card p-5"><p class="text-sm text-gray-500">Vacant room opportunity</p><p class="text-2xl font-bold mt-1 num txt-due" id="k-vacant"><span class="skel inline-block w-24 h-7"></span></p><p class="text-xs text-gray-500 mt-3"><span id="k-vacant-sub">&nbsp;</span> · <span id="k-occ"></span></p></div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <section class="lg:col-span-2 space-y-6">
+    <div class="card overflow-hidden">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-[var(--line)]"><h3 class="font-semibold">Action required today <span id="q-count" class="ml-1 pill pill-late !py-0 empty:hidden"></span></h3><a href="/tenants" class="text-sm font-medium text-brand-600">All tenants →</a></div>
+      <div id="queue" class="divide-line"><div class="p-4"><div class="skel h-14"></div></div><div class="p-4"><div class="skel h-14"></div></div></div>
+    </div>
+    <div class="card p-5"><h3 class="font-semibold mb-3">Portfolio brief</h3><ul id="brief" class="space-y-2.5"><li class="skel h-5 w-3/4"></li><li class="skel h-5 w-2/3"></li></ul></div>
+  </section>
+  <aside class="space-y-6">
+    <div class="card p-5"><div class="flex items-center justify-between mb-1"><h3 class="font-semibold">Recent payments</h3><a href="/payments" class="text-sm font-medium text-brand-600">View all</a></div><div id="recent" class="divide-line"></div><div id="recent-arch" class="pt-2"></div></div>
+    <a href="/maintenance" class="card card-hover p-5 flex items-center justify-between"><div><p class="text-sm text-gray-500">Open maintenance</p><p class="text-2xl font-bold num" id="k-maint">0</p></div><span class="text-sm font-medium text-brand-600">View →</span></a>
+    <div class="card p-5"><p class="font-semibold">Free trial</p><p class="text-sm text-gray-500 mt-0.5" id="trial-text">&nbsp;</p></div>
+  </aside>
+</div>
+
+</div>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="/js/firebase-config.js"></script>
+<script src="/js/billing.js"></script>
+<script src="/js/store.js"></script>
+<script src="/js/payments.js"></script>
+<script src="/js/ai-automation.js"></script>
+<script src="/js/tenancy.js"></script>
+<script src="/js/pdf-ledger.js"></script>
+<script src="/js/export.js"></script>
+<script src="/js/receipts.js"></script>
+<script src="/js/shell.js"></script>
+<script src="/js/dashboard.js"></script>
+</body>
+</html>

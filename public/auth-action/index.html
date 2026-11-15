@@ -1,0 +1,27 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#E11D48"/>
+<title>PropFlow KE — Account</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/tailwind.css"/><link rel="stylesheet" href="/css/app.css"/></head>
+<body class="min-h-screen flex items-center justify-center p-4">
+<main class="w-full max-w-md"><a href="/" class="flex items-center gap-3 justify-center mb-8"><div class="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center font-bold">P</div><span class="font-bold text-lg">PropFlow KE</span></a>
+<div class="card p-7 sm:p-8" id="box"><div class="skel h-6 w-2/3"></div><div class="skel h-12 w-full mt-5"></div></div></main>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="/js/firebase-config.js"></script>
+<script>
+(function(){
+  var q=new URLSearchParams(location.search), mode=q.get("mode"), code=q.get("oobCode"), box=document.getElementById("box");
+  function done(ok,title,text,btn){box.innerHTML='<div class="text-center"><div class="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center '+(ok?"bg-[var(--paid-bg)] text-[var(--paid)]":"bg-[var(--late-bg)] text-[var(--late)]")+'"><svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="'+(ok?"M5 13l4 4L19 7":"M6 18L18 6M6 6l12 12")+'"/></svg></div><h1 class="text-2xl font-bold">'+title+'</h1><p class="text-gray-500 text-sm mt-2">'+text+'</p><a href="'+(btn||"/")+'" class="btn-primary w-full mt-6">'+(btn&&btn!=="/"?"Request a new link":"Continue to sign in")+'</a></div>'}
+  if(!code) return done(false,"Link not valid","This link is incomplete. Request a new one.","/forgot-password");
+  if(mode==="resetPassword"){
+    auth.verifyPasswordResetCode(code).then(function(email){
+      box.innerHTML='<h1 class="text-2xl font-bold">Choose a new password</h1><p class="text-gray-500 text-sm mt-1.5">For <b class="text-gray-800">'+email.replace(/</g,"&lt;")+'</b></p><form id="f" class="mt-6 space-y-4" novalidate><div><label class="lbl" for="p1">New password</label><input id="p1" type="password" class="auth-input" autocomplete="new-password" autofocus/></div><div><label class="lbl" for="p2">Confirm password</label><input id="p2" type="password" class="auth-input" autocomplete="new-password"/></div><p id="e" class="text-sm txt-late hidden"></p><button class="btn-primary w-full">Save new password</button></form>';
+      document.getElementById("f").onsubmit=function(ev){ev.preventDefault();var p1=document.getElementById("p1").value,p2=document.getElementById("p2").value,e=document.getElementById("e");e.classList.remove("hidden");
+        if(p1.length<8){e.textContent="Use at least 8 characters.";return} if(p1!==p2){e.textContent="Passwords do not match.";return} e.classList.add("hidden");
+        auth.confirmPasswordReset(code,p1).then(function(){done(true,"Password updated","You can now sign in with your new password.")}).catch(function(x){e.textContent=x.code==="auth/weak-password"?"That password is too weak.":"This link has expired. Request a new one.";e.classList.remove("hidden")})};
+    }).catch(function(){done(false,"Link expired","This reset link has expired or was already used.","/forgot-password")});
+  } else if(mode==="verifyEmail"){
+    auth.applyActionCode(code).then(function(){done(true,"Email verified","Thanks — your email address is confirmed.")}).catch(function(){done(false,"Link expired","This verification link has expired or was already used.","/")});
+  } else done(false,"Link not valid","Request a new link and try again.","/forgot-password");
+})();
+</script></body></html>

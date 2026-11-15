@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="theme-color" content="#E11D48"/>
+<title>Tenants — PropFlow KE</title>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/tailwind.css"/>
+<link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body data-page="tenants" data-title="Tenants">
+<template id="header-actions"><button id="pdf-list" class="btn">Download PDF</button><button class="btn hidden md:inline-flex" onclick="Export.tenants()">Export CSV</button><button class="btn btn-soft hidden sm:inline-flex" onclick="AI.openMpesaModal()">Quick Confirm M-Pesa</button><button class="btn btn-brand" onclick="Tenancy.openAssign()">+ Add tenant</button></template>
+<div id="page">
+
+<div class="mb-5"><h2 class="text-2xl font-bold">Tenants</h2><p class="text-gray-500 text-sm mt-0.5">Rent is due on each tenant's move-in day. Red means late, amber means due within 3 days. Tenants who moved out over 30 days ago are kept in Archive.</p></div>
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+  <div id="tabs" class="tabs"><span class="tab on">All active</span></div>
+  <input id="search" type="search" class="auth-input md:!w-72" placeholder="Search name, phone, room…" aria-label="Search tenants"/>
+</div>
+<div id="tenants-list" class="card divide-line overflow-hidden"><div class="p-4"><div class="skel h-14"></div></div><div class="skel h-14"></div></div><div class="skel h-14"></div></div><div class="skel h-14"></div></div></div>
+
+</div>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="/js/firebase-config.js"></script>
+<script src="/js/billing.js"></script>
+<script src="/js/store.js"></script>
+<script src="/js/payments.js"></script>
+<script src="/js/ai-automation.js"></script>
+<script src="/js/tenancy.js"></script>
+<script src="/js/pdf-ledger.js"></script>
+<script src="/js/export.js"></script>
+<script src="/js/receipts.js"></script>
+<script src="/js/shell.js"></script>
+<script src="/js/tenants.js"></script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="theme-color" content="#E11D48"/><meta name="mobile-web-app-capable" content="yes"/>
+<title>PropFlow KE — Sign in</title>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="stylesheet" href="/css/tailwind.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body class="bg-gray-50 font-sans antialiased min-h-screen">
+<div id="toast-container" class="fixed top-4 right-4 z-[100] space-y-2 pointer-events-none"></div>
+<div class="min-h-screen flex">
+  <div class="hidden lg:flex lg:w-[46%] bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 relative text-white p-12 flex-col justify-between">
+    <div>
+      <div class="flex items-center gap-3 mb-14">
+        <div class="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg></div>
+        <div><div class="font-bold text-xl">PropFlow KE</div><div class="text-brand-100 text-xs">Your places, together</div></div>
+      </div>
+      <h1 class="text-4xl font-extrabold leading-tight mb-4">Manage rent.<br>Less paperwork.</h1>
+      <p class="text-brand-100 text-lg max-w-md">Track tenants, collect rent via Paystack/M-Pesa, manage units — built for Kenyan landlords.</p>
+    </div>
+    <div class="space-y-4 text-sm text-brand-100">
+      <div>✓ Per-unit rent tracking</div>
+      <div>✓ Paystack payments</div>
+      <div>✓ 60-day free trial</div>
+    </div>
+  </div>
+  <div class="flex-1 flex flex-col justify-center px-5 sm:px-10 py-10">
+    <div class="w-full max-w-md mx-auto">
+      <div class="lg:hidden flex items-center gap-3 mb-8">
+        <div class="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg></div>
+        <div class="font-bold text-lg">PropFlow KE</div>
+      </div>
+      <div class="flex bg-gray-100 p-1 rounded-xl mb-8">
+        <button id="tab-login" onclick="switchTab('login')" class="tab-btn flex-1 py-2.5 text-sm font-semibold rounded-lg bg-white text-gray-900 shadow-sm">Sign in</button>
+        <button id="tab-register" onclick="switchTab('register')" class="tab-btn flex-1 py-2.5 text-sm font-semibold rounded-lg text-gray-500">Create account</button>
+      </div>
+
+      <div id="form-login" class="space-y-5">
+        <div><h2 class="text-2xl font-bold">Welcome back</h2><p class="text-gray-500 text-sm mt-1">Sign in to manage your properties.</p></div>
+        <form onsubmit="handleLogin(event)" class="space-y-4">
+          <div><label class="block text-sm font-medium mb-1.5">Email</label><input type="email" id="login-email" required class="auth-input" placeholder="you@example.com"/></div>
+          <div>
+            <div class="flex justify-between mb-1.5"><label class="text-sm font-medium">Password</label><a href="/forgot-password" id="forgot-link" class="text-sm text-brand-600 font-medium hover:underline">Forgot password?</a></div>
+            <div class="relative"><input type="password" id="login-password" required class="auth-input pr-11"/><button type="button" onclick="togglePassword('login-password',this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"><svg class="w-5 h-5 eye-open" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg><svg class="w-5 h-5 eye-closed hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg></button></div>
+          </div>
+          <button type="submit" id="login-btn" class="btn-primary w-full"><span class="btn-text">Sign in</span><span class="btn-loader hidden"><svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg></span></button>
+        </form>
+      </div>
+
+      <div id="form-register" class="space-y-5 hidden">
+        <div><h2 class="text-2xl font-bold">Create account</h2><p class="text-gray-500 text-sm mt-1">60-day free trial. No card needed.</p></div>
+        <form onsubmit="handleRegister(event)" class="space-y-4">
+          <div><label class="block text-sm font-medium mb-1.5">Full name *</label><input id="reg-name" required class="auth-input" placeholder="John Kamau"/></div>
+          <div><label class="block text-sm font-medium mb-1.5">Email *</label><input type="email" id="reg-email" required class="auth-input"/></div>
+          <div><label class="block text-sm font-medium mb-1.5">Phone *</label><div class="flex"><span class="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-gray-200 bg-gray-50 text-sm text-gray-500">+254</span><input id="reg-phone" required class="auth-input rounded-l-none" placeholder="712345678" pattern="[17][0-9]{8}"/></div></div>
+          <div><label class="block text-sm font-medium mb-1.5">Business name (optional)</label><input id="reg-business" class="auth-input"/></div>
+          <div><label class="block text-sm font-medium mb-1.5">Units you manage *</label>
+            <select id="reg-units" required class="auth-input bg-white"><option value="" disabled selected>Select</option><option value="1-5">1–5</option><option value="6-20">6–20</option><option value="21-50">21–50</option><option value="51-100">51–100</option><option value="100+">100+</option></select>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div><label class="block text-sm font-medium mb-1.5">Password *</label><input type="password" id="reg-password" required minlength="8" class="auth-input"/></div>
+            <div><label class="block text-sm font-medium mb-1.5">Confirm *</label><input type="password" id="reg-confirm" required minlength="8" class="auth-input"/></div>
+          </div>
+          <div class="flex items-start gap-2"><input type="checkbox" id="reg-terms" required class="mt-1"/><label for="reg-terms" class="text-sm text-gray-600">I agree to the <a href="/terms" class="text-brand-600 font-medium">Terms</a> and <a href="/privacy" class="text-brand-600 font-medium">Privacy Policy</a></label></div>
+          <button type="submit" id="register-btn" class="btn-primary w-full"><span class="btn-text">Create free account</span><span class="btn-loader hidden"><svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg></span></button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="/js/firebase-config.js"></script>
+<script src="/js/auth.js"></script>
+<script>document.getElementById("forgot-link")?.addEventListener("click",function(){var e=document.getElementById("login-email").value.trim();if(e)this.href="/forgot-password?email="+encodeURIComponent(e);});</script>
+<script>if('serviceWorker' in navigator){if(['localhost','127.0.0.1'].indexOf(location.hostname)>-1){navigator.serviceWorker.getRegistrations().then(function(r){r.forEach(function(x){x.unregister()})});if(window.caches)caches.keys().then(function(k){k.forEach(function(x){caches.delete(x)})})}else addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){})})}</script>
+</body>
+</html>

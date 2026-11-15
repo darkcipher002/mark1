@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="theme-color" content="#E11D48"/>
+<title>Properties — PropFlow KE</title>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/tailwind.css"/>
+<link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body data-page="properties" data-title="Properties">
+<template id="header-actions"><button onclick="openAdd()" class="btn btn-brand">+ Add property</button></template>
+<div id="page">
+
+<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
+  <div><h2 class="text-2xl font-bold">Properties</h2><p class="text-gray-500 text-sm mt-0.5">Houses, rooms and their rents — each room lets and vacates independently.</p></div>
+</div>
+<div class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
+  <div class="card p-4"><p class="text-xs text-gray-500">Properties</p><p class="text-xl font-bold mt-1 num" id="stat-props"><span class="skel inline-block w-8 h-6"></span></p></div>
+  <div class="card p-4"><p class="text-xs text-gray-500">Houses</p><p class="text-xl font-bold mt-1 num" id="stat-houses"><span class="skel inline-block w-8 h-6"></span></p></div>
+  <div class="card p-4"><p class="text-xs text-gray-500">Rooms occupied</p><p class="text-xl font-bold mt-1 num txt-paid" id="stat-occ"><span class="skel inline-block w-8 h-6"></span></p></div>
+  <div class="card p-4"><p class="text-xs text-gray-500">Rooms vacant</p><p class="text-xl font-bold mt-1 num" id="stat-vac"><span class="skel inline-block w-8 h-6"></span></p></div>
+  <div class="card p-4 col-span-2 lg:col-span-1"><p class="text-xs text-gray-500">Vacant could earn / mo</p><p class="text-xl font-bold mt-1 num txt-due" id="stat-open"><span class="skel inline-block w-20 h-6"></span></p></div>
+</div>
+<div id="properties-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"><div class="skel h-56"></div><div class="skel h-56 hidden md:block"></div><div class="skel h-56 hidden xl:block"></div></div>
+<div id="empty-state" class="hidden card"></div>
+
+<div id="prop-modal" class="modal" aria-hidden="true">
+  <form id="prop-form" class="sheet max-w-lg" onsubmit="saveProp(event)" novalidate>
+    <div class="flex justify-between items-center px-6 py-4 border-b border-[var(--line)]"><h2 class="text-lg font-semibold" id="modal-title">Add property</h2><button type="button" onclick="closeModal()" class="text-gray-400 text-2xl leading-none" aria-label="Close">&times;</button></div>
+    <div class="p-6 space-y-4">
+      <input type="hidden" id="prop-id"/>
+      <div><label class="lbl" for="prop-name">Property name *</label><input id="prop-name" class="auth-input" placeholder="Kinene Court" autocomplete="off"/></div>
+      <div><label class="lbl" for="prop-location">Location</label><input id="prop-location" class="auth-input" placeholder="Thika, Kiambu"/></div>
+      <div id="mix" class="space-y-3">
+        <div class="rounded-xl border border-[var(--line)] p-4 space-y-3">
+          <div class="flex items-center justify-between gap-3"><div><div class="text-sm font-semibold">3-bedroom houses</div><div class="text-xs text-gray-500 num">Large 9,500 · Medium 8,500 · Small 7,500 · whole 25,500</div></div><input id="p-n3" type="number" min="0" max="60" value="1" class="auth-input !w-20 text-center"/></div>
+          <div class="flex items-center justify-between gap-3"><div><div class="text-sm font-semibold">2-bedroom houses</div><div class="text-xs text-gray-500 num">2 rooms × 9,000 · whole 18,000</div></div><input id="p-n2" type="number" min="0" max="60" value="0" class="auth-input !w-20 text-center"/></div>
+          <div class="flex items-center justify-between gap-3"><div><div class="text-sm font-semibold">Single units (other)</div><div class="text-xs text-gray-500">Bedsitters, shops, one-room units</div></div><div class="flex items-center gap-2"><input id="p-srent" type="number" min="0" placeholder="Rent" class="auth-input !w-24"/><input id="p-ns" type="number" min="0" max="60" value="0" class="auth-input !w-20 text-center"/></div></div>
+        </div>
+        <p id="p-preview" class="text-sm text-gray-600"></p>
+      </div>
+    </div>
+    <div class="flex gap-3 px-6 pb-6"><button type="button" onclick="closeModal()" class="btn flex-1">Cancel</button><button type="submit" id="save-btn" class="btn btn-brand flex-1">Create property</button></div>
+  </form>
+</div>
+
+<div id="houses-modal" class="modal" aria-hidden="true">
+  <div class="sheet max-w-2xl">
+    <div class="flex justify-between items-center px-6 py-4 border-b border-[var(--line)] sticky top-0 bg-white z-10">
+      <div><h2 class="text-lg font-semibold" id="houses-title">Houses</h2><p class="text-xs text-gray-500">Rooms can be let, vacated and re-let on their own.</p></div>
+      <div class="flex items-center gap-2"><button class="btn btn-sm btn-soft" onclick="openAddHouse()">+ Add house</button><button onclick="closeHouses()" class="text-gray-400 text-2xl leading-none" aria-label="Close">&times;</button></div>
+    </div>
+    <div id="houses-list" class="p-5 space-y-3"></div>
+  </div>
+</div>
+
+<div id="rent-modal" class="modal" aria-hidden="true">
+  <form id="rent-form" class="sheet max-w-sm p-6" novalidate>
+    <h3 class="text-lg font-semibold">Edit room rent</h3><p class="text-sm text-gray-500 mt-1" id="rr-title"></p>
+    <label class="lbl mt-4" for="rr-amount">Monthly rent (KSh)</label><input id="rr-amount" type="number" min="1" class="auth-input"/>
+    <p class="hint">Applies to future tenants. Current tenants keep the rent in their lease.</p>
+    <div class="flex gap-3 mt-5"><button type="button" class="btn flex-1" onclick="PF.closeModal('rent-modal')">Cancel</button><button class="btn btn-brand flex-1">Save</button></div>
+  </form>
+</div>
+
+<div id="addhouse-modal" class="modal" aria-hidden="true">
+  <form id="ah-form" class="sheet max-w-sm p-6" novalidate>
+    <h3 class="text-lg font-semibold">Add house</h3>
+    <label class="lbl mt-4" for="ah-cat">House category</label>
+    <select id="ah-cat" class="auth-input bg-white"><option value="3BR_TIERED">3-bedroom — Large 9,500 / Medium 8,500 / Small 7,500</option><option value="2BR_FIXED">2-bedroom — 9,000 per room</option><option value="SINGLE">Single unit (custom rent)</option></select>
+    <div id="ah-single" class="hidden"><label class="lbl mt-3" for="ah-rent">Rent per unit (KSh)</label><input id="ah-rent" type="number" min="1" class="auth-input"/></div>
+    <label class="lbl mt-3" for="ah-count">How many?</label><input id="ah-count" type="number" min="1" max="40" value="1" class="auth-input"/>
+    <div class="flex gap-3 mt-5"><button type="button" class="btn flex-1" onclick="PF.closeModal('addhouse-modal')">Cancel</button><button class="btn btn-brand flex-1">Add</button></div>
+  </form>
+</div>
+
+</div>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="/js/firebase-config.js"></script>
+<script src="/js/billing.js"></script>
+<script src="/js/store.js"></script>
+<script src="/js/payments.js"></script>
+<script src="/js/ai-automation.js"></script>
+<script src="/js/tenancy.js"></script>
+<script src="/js/pdf-ledger.js"></script>
+<script src="/js/export.js"></script>
+<script src="/js/receipts.js"></script>
+<script src="/js/shell.js"></script>
+<script src="/js/properties.js"></script>
+</body>
+</html>

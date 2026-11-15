@@ -1,0 +1,25 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": null,
+  "outputDirectory": "public",
+  "functions": { "api/**/*.js": { "maxDuration": 30 } },
+  "crons": [{ "path": "/api/cron/daily", "schedule": "0 5 * * *" }],
+  "rewrites": [
+    { "source": "/dashboard", "destination": "/dashboard/index.html" },
+    { "source": "/properties", "destination": "/properties/index.html" },
+    { "source": "/tenants", "destination": "/tenants/index.html" },
+    { "source": "/payments", "destination": "/payments/index.html" },
+    { "source": "/maintenance", "destination": "/maintenance/index.html" },
+    { "source": "/account", "destination": "/account/index.html" },
+    { "source": "/forgot-password", "destination": "/forgot-password/index.html" },
+    { "source": "/auth-action", "destination": "/auth-action/index.html" },
+    { "source": "/pay", "destination": "/pay/index.html" },
+    { "source": "/tenant", "destination": "/tenant/index.html" },
+    { "source": "/terms", "destination": "/terms/index.html" },
+    { "source": "/privacy", "destination": "/privacy/index.html" }
+  ],
+  "headers": [
+    { "source": "/sw.js", "headers": [{ "key": "Cache-Control", "value": "no-cache" }, { "key": "Service-Worker-Allowed", "value": "/" }] },
+    { "source": "/(.*)", "headers": [{ "key": "X-Content-Type-Options", "value": "nosniff" }, { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }] }
+  ]
+}

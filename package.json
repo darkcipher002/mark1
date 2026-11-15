@@ -1,0 +1,22 @@
+{
+  "name": "propflow-ke",
+  "version": "2.0.0",
+  "private": true,
+  "scripts": {
+    "build:css": "tailwindcss -c tailwind.config.js -i src/tailwind.css -o public/css/tailwind.css --minify",
+    "watch:css": "tailwindcss -c tailwind.config.js -i src/tailwind.css -o public/css/tailwind.css --watch",
+    "test": "node tests/billing.test.js && node tests/sync.test.js && node tests/api.test.js",
+    "start": "npx --yes serve public -l 5501",
+    "sync": "cp public/js/billing.js api/_lib/billing.js"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.6.0",
+    "web-push": "^3.6.7"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="theme-color" content="#E11D48"/>
+<title>Personal account — PropFlow KE</title>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/tailwind.css"/>
+<link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body data-page="account" data-title="Personal account">
+<div id="page">
+
+<div class="mb-6"><h2 class="text-2xl font-bold">Personal account</h2><p class="text-gray-500 text-sm mt-0.5">Hello, <span id="hello-name">there</span>. Manage your profile, photo and password.</p></div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-5xl">
+  <div class="lg:col-span-2 space-y-6">
+    <form id="profile-form" class="card p-6 space-y-5" novalidate>
+      <div class="flex items-center gap-5">
+        <div id="avatar-box" class="w-20 h-20 rounded-full bg-brand-100 flex items-center justify-center overflow-hidden shrink-0 ring-4 ring-white shadow"></div>
+        <div><div class="flex gap-2 flex-wrap"><label class="btn btn-sm btn-soft cursor-pointer">Upload photo<input id="avatar-input" type="file" accept="image/*" class="hidden"/></label><button type="button" id="avatar-remove" class="btn btn-sm hidden">Remove</button></div><p class="hint">Cropped to a square and compressed to 256×256 WebP.</p></div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div><label class="lbl" for="p-first">First name *</label><input id="p-first" class="auth-input" autocomplete="given-name"/></div>
+        <div><label class="lbl" for="p-last">Last name</label><input id="p-last" class="auth-input" autocomplete="family-name"/></div>
+        <div><label class="lbl" for="p-phone">Phone</label><input id="p-phone" class="auth-input" inputmode="tel" placeholder="0712 345 678" autocomplete="tel"/></div>
+        <div><label class="lbl" for="p-email">Email</label><input id="p-email" class="auth-input" disabled/></div>
+        <div class="sm:col-span-2"><label class="lbl" for="p-business">Business / portfolio name</label><input id="p-business" class="auth-input" placeholder="Shown on tenant statements"/><p class="hint">Appears in the header of the PDF statements you send to tenants.</p></div>
+      </div>
+      <div class="flex justify-end"><button id="profile-save" class="btn btn-brand">Save changes</button></div>
+    </form>
+    <form id="pw-form" class="card p-6 space-y-4" novalidate>
+      <div><h3 class="font-semibold">Change password</h3><p class="text-sm text-gray-500">Forgot it instead? <a class="text-brand-600 font-medium" href="/forgot-password">Send a reset link</a></p></div>
+      <div><label class="lbl" for="pw-cur">Current password</label><div class="relative"><input id="pw-cur" type="password" class="auth-input pr-16" autocomplete="current-password"/><button type="button" data-eye="pw-cur" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-gray-500">Show</button></div></div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div><label class="lbl" for="pw-new">New password</label><div class="relative"><input id="pw-new" type="password" class="auth-input pr-16" autocomplete="new-password"/><button type="button" data-eye="pw-new" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-gray-500">Show</button></div></div><div><label class="lbl" for="pw-conf">Confirm new password</label><div class="relative"><input id="pw-conf" type="password" class="auth-input pr-16" autocomplete="new-password"/><button type="button" data-eye="pw-conf" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-gray-500">Show</button></div></div></div>
+      <div class="flex justify-end"><button id="pw-save" class="btn btn-brand">Update password</button></div>
+    </form>
+    <div class="card p-6 space-y-4">
+      <div><h3 class="font-semibold">Data &amp; backup</h3><p class="text-sm text-gray-500">Your records are saved automatically and backed up every night. Download your own copies any time.</p></div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2"><button type="button" class="btn" onclick="Export.tenants()">Tenants (Excel/CSV)</button><button type="button" class="btn" onclick="Export.payments()">Payments (Excel/CSV)</button><button type="button" class="btn" onclick="Export.rooms()">Rooms (Excel/CSV)</button></div>
+      <button type="button" class="btn btn-soft w-full" onclick="Export.backup()">Download full backup (JSON)</button>
+    </div>
+  </div>
+  <aside class="space-y-6">
+    <div class="card p-5"><p class="text-sm text-gray-500">Plan</p><p class="font-semibold mt-0.5" id="plan-name">Free trial</p><p class="text-sm text-gray-500" id="plan-sub">&nbsp;</p></div>
+    <div id="push-card" class="card p-5"><p class="font-semibold">Alerts on this device</p><p class="text-sm text-gray-500 mt-0.5" id="push-text">Get a notification when a tenant pays or rent runs late.</p><button id="push-btn" class="btn btn-soft w-full mt-3">Turn on alerts</button></div>
+    <div id="install-card" class="card p-5 hidden"><p class="font-semibold">Install on your phone</p><p class="text-sm text-gray-500 mt-0.5" id="install-text">Add PropFlow to your home screen for one-tap access and offline use.</p><button id="install-btn" class="btn btn-brand w-full mt-3">Install app</button></div>
+    <div class="card p-5 space-y-2 text-sm"><a href="/privacy" class="block text-gray-700 hover:text-brand-600">Privacy policy</a><a href="/terms" class="block text-gray-700 hover:text-brand-600">Terms of service</a></div>
+    <button id="signout-btn" class="btn btn-danger w-full">Sign out</button>
+  </aside>
+</div>
+
+</div>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="/js/firebase-config.js"></script>
+<script src="/js/billing.js"></script>
+<script src="/js/store.js"></script>
+<script src="/js/payments.js"></script>
+<script src="/js/ai-automation.js"></script>
+<script src="/js/tenancy.js"></script>
+<script src="/js/pdf-ledger.js"></script>
+<script src="/js/export.js"></script>
+<script src="/js/receipts.js"></script>
+<script src="/js/shell.js"></script>
+<script src="/js/account.js"></script>
+</body>
+</html>

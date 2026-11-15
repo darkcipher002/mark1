@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // tenant-portal accounts carry role=tenant and get NO direct database access (they use the server API)
+    function isSignedIn() { return request.auth != null && request.auth.token.get('role', '') != 'tenant'; }
+    function isOwner() { return isSignedIn() && resource.data.ownerId == request.auth.uid; }
+    function isOwnerCreate() { return isSignedIn() && request.resource.data.ownerId == request.auth.uid; }
+    // ownerId can never be changed or hijacked on update
+    function ownerKept() { return request.resource.data.ownerId == resource.data.ownerId; }
+
+    match /users/{userId} {
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      // profile photo is a ~256x256 WebP data URL; cap size to keep documents small
+      allow update: if isSignedIn() && request.auth.uid == userId
+        && (!('avatar' in request.resource.data) || request.resource.data.avatar == null || request.resource.data.avatar.size() < 150000);
+      allow delete: if false;
+    }
+    // property -> house -> room structure and tenancies
+    match /properties/{id} { allow read: if isOwner(); allow create: if isOwnerCreate(); allow update: if isOwner() && ownerKept(); allow delete: if isOwner(); }
+    match /houses/{id}     { allow read: if isOwner(); allow create: if isOwnerCreate(); allow update: if isOwner() && ownerKept(); allow delete: if isOwner(); }
+    match /rooms/{id}      { allow read: if isOwner(); allow create: if isOwnerCreate(); allow update: if isOwner() && ownerKept(); allow delete: if isOwner(); }
+    match /leases/{id}     { allow read: if isOwner(); allow create: if isOwnerCreate(); allow update: if isOwner() && ownerKept(); allow delete: if false; }
+    match /tenants/{id}    { allow read: if isOwner(); allow create: if isOwnerCreate(); allow update: if isOwner() && ownerKept(); allow delete: if isOwner(); }
+    match /maintenance/{id}{ allow read: if isOwner(); allow create: if isOwnerCreate(); allow update: if isOwner() && ownerKept(); allow delete: if isOwner(); }
+    // legacy collection from the previous version (read-only)
+    match /units/{id}      { allow read: if isOwner(); allow write: if false; }
+
+    // payments are an append-only ledger: validated on create, immutable afterwards
+    match /payments/{id} {
+      allow read: if isOwner();
+      allow create: if isOwnerCreate()
+        && request.resource.data.amount is number && request.resource.data.amount > 0
+        && request.resource.data.currency == 'KES'
+        && request.resource.data.type in ['RENT', 'DEPOSIT']
+        && request.resource.data.provider in ['PAYSTACK', 'DARAJA', 'MANUAL'];
+      allow update, delete: if false;
+    }
+    // in-app notifications are written only by the server; the landlord can read, mark read, and clear them
+    match /notifications/{id} {
+      allow read, delete: if isOwner();
+      allow update: if isOwner() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      allow create: if false;
+    }
+    match /{document=**} { allow read, write: if false; }
+  }
+}
